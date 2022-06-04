@@ -19,7 +19,7 @@ namespace ReMod.Core.Updater
     {
         public const string Name = "ReMod.Core.Updater";
         public const string Author = "Penny";
-        public const string Version = "1.0.1";
+        public const string Version = "1.0.2";
         public const string DownloadLink = "https://github.com/PennyBunny/ReMod.Core.Updater";
         public const string Description = "A plugin that handles all updating of ReMod.Core";
     }
@@ -28,6 +28,7 @@ namespace ReMod.Core.Updater
     {
         
         public static readonly MelonLogger.Instance Log = new(BuildShit.Name, ConsoleColor.Cyan);
+        private string shortpath = "ReMod.Core.dll";
         private string filepath = "UserLibs/ReMod.Core.dll";
         
         public override void OnPreInitialization()
@@ -35,6 +36,12 @@ namespace ReMod.Core.Updater
             
             var sha256 = SHA256.Create();
             byte[] localcore, remotecore;
+
+            if (File.Exists(shortpath))
+            {
+                File.Delete(shortpath);
+                Log.Msg("Yeeted ReMod.Core in root folder!");
+            }
             
             if (!File.Exists(filepath))
             {
@@ -61,7 +68,6 @@ namespace ReMod.Core.Updater
                 {
                     Log.Msg("ReMod.Core is already up to date!");
                 }
-                
             }
 
         }
