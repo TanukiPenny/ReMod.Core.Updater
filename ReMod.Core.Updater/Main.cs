@@ -19,7 +19,7 @@ namespace ReMod.Core.Updater
     {
         public const string Name = "ReMod.Core.Updater";
         public const string Author = "Penny";
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
         public const string DownloadLink = "https://github.com/PennyBunny/ReMod.Core.Updater";
         public const string Description = "A plugin that handles all updating of ReMod.Core";
     }
@@ -28,6 +28,7 @@ namespace ReMod.Core.Updater
     {
         
         public static readonly MelonLogger.Instance Log = new(BuildShit.Name, ConsoleColor.Cyan);
+        private string filepath = "UserLibs/ReMod.Core.dll";
         
         public override void OnPreInitialization()
         {
@@ -35,11 +36,11 @@ namespace ReMod.Core.Updater
             var sha256 = SHA256.Create();
             byte[] localcore, remotecore;
             
-            if (!File.Exists("ReMod.Core.dll"))
+            if (!File.Exists(filepath))
             {
                 remotecore = new WebClient().DownloadData(
                     "https://github.com/RequiDev/ReMod.Core/releases/latest/download/ReMod.Core.dll");
-                File.WriteAllBytes("ReMod.Core.dll", remotecore);
+                File.WriteAllBytes(filepath, remotecore);
                 Log.Msg("ReMod.Core downloaded!");
             }
             else
@@ -48,12 +49,12 @@ namespace ReMod.Core.Updater
                     "https://github.com/RequiDev/ReMod.Core/releases/latest/download/ReMod.Core.dll");
                 var remotehash = ComputeHash(sha256, remotecore);
                 
-                localcore = File.ReadAllBytes("ReMod.Core.dll");
+                localcore = File.ReadAllBytes(filepath);
                 var localhash = ComputeHash(sha256, localcore);
 
                 if (localhash != remotehash)
                 {
-                    File.WriteAllBytes("ReMod.Core.dll", remotecore);
+                    File.WriteAllBytes(filepath, remotecore);
                     Log.Msg("ReMod.Core updated!");
                 }
                 else
