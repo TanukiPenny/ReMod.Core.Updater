@@ -12,77 +12,72 @@ using ReMod.Core.Updater;
 [assembly: MelonInfo(typeof(ReMod.Core.Updater.Main), BuildShit.Name, BuildShit.Version, BuildShit.Author, BuildShit.DownloadLink)]
 [assembly: MelonGame("VRChat", "VRChat")]
 
-namespace ReMod.Core.Updater
-{
-    
-    public static class BuildShit
-    {
-        public const string Name = "ReMod.Core.Updater";
-        public const string Author = "Penny";
-        public const string Version = "1.0.2";
-        public const string DownloadLink = "https://github.com/PennyBunny/ReMod.Core.Updater";
-        public const string Description = "A plugin that handles all updating of ReMod.Core";
-    }
-    
-    public class Main : MelonPlugin
-    {
-        
-        public static readonly MelonLogger.Instance Log = new(BuildShit.Name, ConsoleColor.Cyan);
-        private string shortpath = "ReMod.Core.dll";
-        private string filepath = "UserLibs/ReMod.Core.dll";
-        
-        public override void OnPreInitialization()
-        {
-            
-            var sha256 = SHA256.Create();
-            byte[] localcore, remotecore;
+namespace ReMod.Core.Updater;
 
-            if (File.Exists(shortpath))
-            {
-                File.Delete(shortpath);
-                Log.Msg("Yeeted ReMod.Core in root folder!");
-            }
+public static class BuildShit
+{
+    public const string Name = "ReMod.Core.Updater";
+    public const string Author = "Penny";
+    public const string Version = "1.0.2";
+    public const string DownloadLink = "https://github.com/PennyBunny/ReMod.Core.Updater";
+    public const string Description = "A plugin that handles all updating of ReMod.Core";
+}
+    
+public class Main : MelonPlugin
+{
+        
+    public static readonly MelonLogger.Instance Log = new(BuildShit.Name, ConsoleColor.Cyan);
+    private string shortpath = "ReMod.Core.dll";
+    private string filepath = "UserLibs/ReMod.Core.dll";
+        
+    public override void OnPreInitialization()
+    {
             
-            if (!File.Exists(filepath))
+        var sha256 = SHA256.Create();
+        byte[] localcore, remotecore;
+
+        if (File.Exists(shortpath))
+        {
+            File.Delete(shortpath);
+            Log.Msg("Yeeted ReMod.Core in root folder!");
+        }
+            
+        if (!File.Exists(filepath))
+        {
+            remotecore = new WebClient().DownloadData(
+                "https://github.com/RequiDev/ReMod.Core/releases/latest/download/ReMod.Core.dll");
+            File.WriteAllBytes(filepath, remotecore);
+            Log.Msg("ReMod.Core downloaded!");
+        }
+        else
+        {
+            remotecore = new WebClient().DownloadData(
+                "https://github.com/RequiDev/ReMod.Core/releases/latest/download/ReMod.Core.dll");
+            var remotehash = ComputeHash(sha256, remotecore);
+                
+            localcore = File.ReadAllBytes(filepath);
+            var localhash = ComputeHash(sha256, localcore);
+
+            if (localhash != remotehash)
             {
-                remotecore = new WebClient().DownloadData(
-                    "https://github.com/RequiDev/ReMod.Core/releases/latest/download/ReMod.Core.dll");
                 File.WriteAllBytes(filepath, remotecore);
-                Log.Msg("ReMod.Core downloaded!");
+                Log.Msg("ReMod.Core updated!");
             }
             else
             {
-                remotecore = new WebClient().DownloadData(
-                    "https://github.com/RequiDev/ReMod.Core/releases/latest/download/ReMod.Core.dll");
-                var remotehash = ComputeHash(sha256, remotecore);
-                
-                localcore = File.ReadAllBytes(filepath);
-                var localhash = ComputeHash(sha256, localcore);
-
-                if (localhash != remotehash)
-                {
-                    File.WriteAllBytes(filepath, remotecore);
-                    Log.Msg("ReMod.Core updated!");
-                }
-                else
-                {
-                    Log.Msg("ReMod.Core is already up to date!");
-                }
+                Log.Msg("ReMod.Core is already up to date!");
             }
-
-        }
-        
-        private static string ComputeHash(HashAlgorithm sha256, byte[] data)
-        {
-            var bytes = sha256.ComputeHash(data);
-            var sb = new StringBuilder();
-            foreach (var b in bytes)
-            {
-                sb.Append(b.ToString("x2"));
-            }
-
-            return sb.ToString();
         }
     }
-    
+        
+    private static string ComputeHash(HashAlgorithm sha256, byte[] data)
+    {
+        var bytes = sha256.ComputeHash(data);
+        var sb = new StringBuilder();
+        foreach (var b in bytes)
+        {
+            sb.Append(b.ToString("x2"));
+        }
+        return sb.ToString();
+    }
 }
