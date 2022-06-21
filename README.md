@@ -1,5 +1,7 @@
 # ReMod.Core.Updater
 
+!! This is a plugin, this goes in your Plugins folder !!
+
 A plugin that handles all updating of ReMod.Core
 
 ### MelonLoader
